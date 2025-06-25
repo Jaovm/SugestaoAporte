@@ -2,12 +2,21 @@ import requests
 import pandas as pd
 import yfinance as yf
 
-# Insira sua chave real da FMP aqui
 FMP_API_KEY = '7a2Rn70FJUAnnDH0EV4YmHIsrGMCPo95'
 
+def add_sa_suffix_if_needed(ticker):
+    ticker = ticker.upper()
+    if (
+        not ticker.endswith(".SA") and
+        any(ticker.endswith(suf) for suf in ["3", "4", "11"]) and
+        len(ticker) in [5, 6]
+    ):
+        return ticker + ".SA"
+    return ticker
 
 def get_company_profile(ticker):
     try:
+        # Ticker original para FMP
         url = f"https://financialmodelingprep.com/api/v3/profile/{ticker}?apikey={FMP_API_KEY}"
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
@@ -17,9 +26,9 @@ def get_company_profile(ticker):
     except Exception as e:
         print(f"[FMP] Erro ao buscar profile: {e}")
 
-    # Fallback com yfinance
+    # Fallback com yfinance (com .SA se necessário)
     try:
-        yf_ticker = yf.Ticker(ticker)
+        yf_ticker = yf.Ticker(add_sa_suffix_if_needed(ticker))
         info = yf_ticker.info
         return {
             'companyName': info.get('shortName'),
@@ -32,7 +41,6 @@ def get_company_profile(ticker):
         print(f"[Yahoo] Erro ao buscar profile: {e}")
         return None
 
-
 def get_financial_statements(ticker, statement_type='income-statement', period='annual'):
     try:
         url = f"https://financialmodelingprep.com/api/v3/{statement_type}/{ticker}?period={period}&apikey={FMP_API_KEY}"
@@ -43,10 +51,10 @@ def get_financial_statements(ticker, statement_type='income-statement', period='
         print(f"[FMP] Erro ao buscar {statement_type}: {e}")
     return pd.DataFrame()
 
-
 def get_historical_prices(ticker, period='1y'):
     try:
-        df = yf.download(ticker, period=period, progress=False)
+        yf_ticker = add_sa_suffix_if_needed(ticker)
+        df = yf.download(yf_ticker, period=period, progress=False)
         return df
     except Exception as e:
         print(f"[Yahoo] Erro ao baixar preços históricos: {e}")
