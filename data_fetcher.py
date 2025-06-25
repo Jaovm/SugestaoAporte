@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 
 # Chave da API FMP (substitua pela sua chave real)
-FMP_API_KEY = 7a2Rn70FJUAnnDH0EV4YmHIsrGMCPo95 # TODO: Substituir pela chave real
+FMP_API_KEY = '7a2Rn70FJUAnnDH0EV4YmHIsrGMCPo95' # TODO: Substituir pela chave real
 
 def get_company_profile(ticker):
     url = f"https://financialmodelingprep.com/api/v3/profile/{ticker}?apikey={FMP_API_KEY}"
