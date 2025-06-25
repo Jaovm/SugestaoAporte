@@ -6,5 +6,6 @@ scipy
 requests
 beautifulsoup4
 alpha_vantage
+yfinance
+openpyxl
 seaborn
-
